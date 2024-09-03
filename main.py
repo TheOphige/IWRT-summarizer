@@ -1,17 +1,36 @@
+import os
+import shutil
 import streamlit as st
-from app import text_summarize, reimagine
-from app.book_type_extract import novels_extract
-from app.populate_chapters import populate_chapters
+
+
+# Function to clear cache and session state
+def clear_cache_and_state():
+    # Clear Streamlit cache
+    st.cache_data.clear()
+
+    # Clear Streamlit session state
+    for key in st.session_state.keys():
+        del st.session_state[key]
+
+# Delete the 'pages' directory and clear cache/session state before Streamlit runs
+if os.path.exists('pages'):
+    shutil.rmtree('pages')
+    clear_cache_and_state()
+    print("'pages' directory deleted and cache/session state cleared.")
 
 st.set_page_config(
-    page_title="streamlit-folium documentation",
+    page_title="IWRT-Summarizer",
     page_icon="🧨",
     layout="wide",
 )
 
-# Sidebar navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Select Mode", ["Text Summarize", "Reimagine"])
+
+from app.book_type_extract.novels_extract import novels_extract
+from app.book_type_extract.poetry_extract import poetry_extract
+from app.book_type_extract.personal_growth_extract import personal_growth_extract
+from app.book_type_extract.textbook_extract import textbook_extract
+from app.populate_chapters import populate_chapters
+
 
 
 # Main Page
@@ -21,27 +40,33 @@ st.title("Welcome to IWTR")
 # Introductory Text
 st.write("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " * 5)
 
-st.header("Select Your Book Type")
+st.header("Your royal commands")
 
-# Define book types and their images
-book_types = {
-    "Textbook": "assets/textbook.png",
-    "Poetry": "assets/poetry.png",
-    "Personal Growth": "assets/personal-growth.png",
-    "Novel": "assets/novel.png"
-}
-
-# Create a selectbox for choosing the book type
-selected_book_type = st.selectbox("Choose your book type", list(book_types.keys()))
-
-# Display the selected book type image
-left_co, cent_co,last_co = st.columns(3)
-with cent_co:
-    st.image(book_types[selected_book_type], caption=selected_book_type)
-
+# select summarize mode
+st.sidebar.title("Royal commands")
+summarize_mode = st.sidebar.radio("Select Mode", ["Text Summarize", "Reimagine"])
 
 # Handle selection
-st.write(f"{selected_book_type} selected!")
+if summarize_mode == "Text Summarize":
+    st.write(f"{summarize_mode} selected! Words are better few.")
+elif summarize_mode == "Reimagine":
+    st.write(f"{summarize_mode} selected! One image is more than a thousand words.")
+
+# Define book types
+book_types = ["Textbook", "Poetry", "Personal Growth", "Novel"]
+
+# Create a selectbox for choosing the book type
+selected_book_type = st.sidebar.selectbox("Select book type", book_types)
+
+# Handle selection
+if selected_book_type == "Textbook":
+    st.write(f"{selected_book_type} selected! Knowledge is power.")
+elif selected_book_type == "Poetry":
+    st.write(f"{selected_book_type} selected! Shakespeare.")
+elif selected_book_type == "Personal Growth":
+    st.write(f"{selected_book_type} selected! Readers are leaders.")
+elif selected_book_type == "Novel":
+    st.write(f"{selected_book_type} selected! Novels are like sausages.")
 
 # PDF Upload
 st.header("Upload Your PDF")
@@ -51,8 +76,42 @@ uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 if uploaded_file:
     if st.button("Summarize"):
         st.write("⚙Summarizing... While you sleep💤")
+
+        # extract book based on book type
+        if selected_book_type == 'Textbook':
+            book = textbook_extract(uploaded_file)
+            st.write("Textbook extracted")
+        elif selected_book_type == 'Poetry':
+            book = poetry_extract(uploaded_file)
+            st.write("Poetry extracted")
+        elif selected_book_type == 'Personal Growth':
+            book = personal_growth_extract(uploaded_file)
+            st.write("Personal Growth book extracted")
+        elif selected_book_type == 'Novel':
+            book = novels_extract(uploaded_file)
+            st.write("Novels extracted")
         
-        populate_chapters()
+        # check summarized mode selection
+        if summarize_mode == "Text Summarize":
+            mode = "Text Summarize"
+            st.write("Summarizing text...")
+        elif summarize_mode == "Reimagine":
+            mode = "Reimagine"
+            st.write("Reimagining...")
+
+        # get summarized book 
+        populate_chapters(mode = mode, book= book)
+
+        st.write("I'm done Summarizing your Highness👑")
+
+# Reset button
+if st.sidebar.button("Upload new book"):
+     # Delete the 'pages' directory before rerunning the app
+    if os.path.exists('pages'):
+        shutil.rmtree('pages')
+        print("'pages' directory deleted.")
+        clear_cache_and_state()
+        st.rerun()
         # import streamlit as st
         # from pages import novels_extract, poetry_extract
 

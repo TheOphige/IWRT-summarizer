@@ -1,25 +1,24 @@
 import os
+import shutil
 from app.utils import chapter_content_code_gen
+from app.text_summarize import text_summarize
+from app.reimagine import reimagine
 
-def populate_chapters():
+def populate_chapters(mode, book):
 
-    # Define the chapters dictionary
-    summarized_books = {
-        'intro': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'fufu': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'eba': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'lulaby': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'gurima': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'gotnick': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'fufus': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'ebas': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'lulabys': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'gurimas': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...',
-        'gotnicks': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ...'
-    }
+    if mode == "Text Summarize":
+        summarized_books = text_summarize(book=book)
+    elif mode == "Reimagine":
+        summarized_books = reimagine(book=book)
 
-    # Ensure the 'pages' directory exists
+    # Check if the 'pages' directory exists and delete it if it does
+    if os.path.exists('pages'):
+        shutil.rmtree('pages')
+        print("'pages' directory deleted.")
+
+    # Create a new 'pages' directory
     os.makedirs('pages', exist_ok=True)
+    print("'pages' directory created.")
 
     # Iterate over the dictionary and create Python files
     for chapter_name, chapter_content in summarized_books.items():
@@ -28,6 +27,7 @@ def populate_chapters():
         with open(file_path, 'w') as file:
             file.write(chapter_content_code)
         print(f'File created: {file_path}')
+
 
 # populate_chapters()
 
