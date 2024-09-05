@@ -3,6 +3,7 @@ import shutil
 import streamlit as st
 
 
+
 # Function to clear cache and session state
 def clear_cache_and_state():
     # Clear Streamlit cache
@@ -25,48 +26,48 @@ st.set_page_config(
 )
 
 
-from app.book_type_extract.novels_extract import novels_extract
-from app.book_type_extract.poetry_extract import poetry_extract
-from app.book_type_extract.personal_growth_extract import personal_growth_extract
-from app.book_type_extract.textbook_extract import textbook_extract
+# from app.book_type_extract.novels_extract import novels_extract
+# from app.book_type_extract.poetry_extract import poetry_extract
+# from app.book_type_extract.personal_growth_extract import personal_growth_extract
+# from app.book_type_extract.textbook_extract import textbook_extract
+from app.book_extract import book_extract
 from app.populate_chapters import populate_chapters
 
 
 
 # Main Page
-st.image("assets/IWTR-LOGO.png", width=750)
+st.image("assets/IWTR-LOGO.png", width=300)
 st.title("Welcome to IWTR")
 
 # Introductory Text
 st.write("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " * 5)
 
-st.header("Your royal commands")
 
 # select summarize mode
 st.sidebar.title("Royal commands")
 summarize_mode = st.sidebar.radio("Select Mode", ["Text Summarize", "Reimagine"])
 
-# Handle selection
-if summarize_mode == "Text Summarize":
-    st.write(f"{summarize_mode} selected! Words are better few.")
-elif summarize_mode == "Reimagine":
-    st.write(f"{summarize_mode} selected! One image is more than a thousand words.")
+# # Handle selection
+# if summarize_mode == "Text Summarize":
+#     st.header(f"{summarize_mode} selected! Words are better few.")
+# elif summarize_mode == "Reimagine":
+#     st.header(f"{summarize_mode} selected! One image is more than a thousand words.")
 
 # Define book types
-book_types = ["Textbook", "Poetry", "Personal Growth", "Novel"]
+# book_types = ["Textbook", "Poetry", "Personal Growth", "Novel"]
 
-# Create a selectbox for choosing the book type
-selected_book_type = st.sidebar.selectbox("Select book type", book_types)
+# # Create a selectbox for choosing the book type
+# selected_book_type = st.sidebar.selectbox("Select book type", book_types)
 
-# Handle selection
-if selected_book_type == "Textbook":
-    st.write(f"{selected_book_type} selected! Knowledge is power.")
-elif selected_book_type == "Poetry":
-    st.write(f"{selected_book_type} selected! Shakespeare.")
-elif selected_book_type == "Personal Growth":
-    st.write(f"{selected_book_type} selected! Readers are leaders.")
-elif selected_book_type == "Novel":
-    st.write(f"{selected_book_type} selected! Novels are like sausages.")
+# # Handle selection
+# if selected_book_type == "Textbook":
+#     st.write(f"{selected_book_type} selected! Knowledge is power.")
+# elif selected_book_type == "Poetry":
+#     st.write(f"{selected_book_type} selected! Shakespeare.")
+# elif selected_book_type == "Personal Growth":
+#     st.write(f"{selected_book_type} selected! Readers are leaders.")
+# elif selected_book_type == "Novel":
+#     st.write(f"{selected_book_type} selected! Novels are like sausages.")
 
 # PDF Upload
 st.header("Upload Your PDF")
@@ -78,18 +79,21 @@ if uploaded_file:
         st.write("⚙Summarizing... While you sleep💤")
 
         # extract book based on book type
-        if selected_book_type == 'Textbook':
-            book = textbook_extract(uploaded_file)
-            st.write("Textbook extracted")
-        elif selected_book_type == 'Poetry':
-            book = poetry_extract(uploaded_file)
-            st.write("Poetry extracted")
-        elif selected_book_type == 'Personal Growth':
-            book = personal_growth_extract(uploaded_file)
-            st.write("Personal Growth book extracted")
-        elif selected_book_type == 'Novel':
-            book = novels_extract(uploaded_file)
-            st.write("Novels extracted")
+        # if selected_book_type == 'Textbook':
+        #     book = textbook_extract(uploaded_file)
+        #     st.write("Textbook extracted")
+        # elif selected_book_type == 'Poetry':
+        #     book = poetry_extract(uploaded_file)
+        #     st.write("Poetry extracted")
+        # elif selected_book_type == 'Personal Growth':
+        #     book = personal_growth_extract(uploaded_file)
+        #     st.write("Personal Growth book extracted")
+        # elif selected_book_type == 'Novel':
+        #     book = novels_extract(uploaded_file)
+        #     st.write("Novels extracted")
+
+        book = book_extract(uploaded_file)
+        st.write("Book extracted")
         
         # check summarized mode selection
         if summarize_mode == "Text Summarize":
