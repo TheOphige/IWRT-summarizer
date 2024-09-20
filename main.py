@@ -2,6 +2,24 @@ import os
 import shutil
 import streamlit as st
 
+# from dotenv import find_dotenv, load_dotenv
+# load_dotenv(find_dotenv())
+
+# Retrieve API keys from .env
+# IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
+# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN")
+# CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
+# CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
+# CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
+
+# Retrieve API keys from secrets
+# IMGUR_CLIENT_ID = st.secrets["IMGUR_CLIENT_ID"]
+# OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
+# HUGGINGFACEHUB_API_TOKEN = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
+# CLOUDINARY_NAME = st.secrets["CLOUDINARY_NAME"]
+# CLOUDINARY_API_KEY = st.secrets["CLOUDINARY_API_KEY"]
+# CLOUDINARY_API_SECRET = st.secrets["CLOUDINARY_API_SECRET"]
 
 
 # Function to clear cache and session state
