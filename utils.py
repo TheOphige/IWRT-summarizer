@@ -4,17 +4,17 @@ import streamlit as st
 import fitz  # PyMuPDF
 from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_core.output_parsers import StrOutputParser
 from openai import RateLimitError
 from dotenv import find_dotenv, load_dotenv
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 load_dotenv(find_dotenv())
 
-# Set up Streamlit page configuration
-st.set_page_config(page_title="PDF Chapter Summarizer", page_icon="📄")
-st.title('PDF Book Chapter Summarizer')
-st.write("Upload a PDF book, and this app will provide a summary of each chapter using LangChain.")
+# # Set up Streamlit page configuration
+# st.set_page_config(page_title="PDF Chapter Summarizer", page_icon="📄")
+# st.title('PDF Book Chapter Summarizer')
+# st.write("Upload a PDF book, and this app will provide a summary of each chapter using LangChain.")
 
 # Function to save uploaded file locally
 def save_uploaded_file(uploaded_file):
@@ -40,6 +40,7 @@ def extract_toc_and_chapter_content(pdf_path):
         "other books by this author", 
         "title page", 
         "copyright", 
+        "copyright page",
         "dedication", 
         "acknowledgments", 
         "photo insert", 
@@ -50,8 +51,9 @@ def extract_toc_and_chapter_content(pdf_path):
         "index",
         "endnotes",
         "footnotes",
-        "about the author"
-    ]
+        "about the author",
+        "about the authors"
+    ] # put them in small letter not caps
     useful_toc = [item for item in toc if item[1].lower() not in exclusion_terms]
     
     # Create a dictionary to store chapter titles and their corresponding content
@@ -63,8 +65,8 @@ def extract_toc_and_chapter_content(pdf_path):
         start_page_num = toc_item[2] - 1  # Starting page (PyMuPDF is zero-indexed)
 
         # Get the page number of the next chapter (or end of document)
-        if i + 1 < len(toc):
-            end_page_num = toc[i + 1][2] - 1  # Next chapter's starting page
+        if i + 1 < len(useful_toc):
+            end_page_num = useful_toc[i + 1][2] - 1  # Next chapter's starting page
         else:
             end_page_num = len(doc)  # Last chapter, so end at the last page
 
@@ -74,14 +76,14 @@ def extract_toc_and_chapter_content(pdf_path):
             page = doc.load_page(page_num)
             chapter_text += page.get_text()
 
-        # Debugging: Display first 20 words and last 20 words
-        words = chapter_text.split()
-        first_20_words = " ".join(words[:20])
-        last_20_words = " ".join(words[-20:])
-        st.write(f"**{chapter_title}**")
-        st.write(f"First 20 words: {first_20_words}")
-        st.write(f"Last 20 words: {last_20_words}")
-        st.write("---")  # Separator for better readability
+        # # Debugging: Display first 20 words and last 20 words
+        # words = chapter_text.split()
+        # first_20_words = " ".join(words[:20])
+        # last_20_words = " ".join(words[-20:])
+        # st.write(f"**{chapter_title}**")
+        # st.write(f"First 20 words: {first_20_words}")
+        # st.write(f"Last 20 words: {last_20_words}")
+        # st.write("---")  # Separator for better readability
 
         # Add to the dictionary
         chapters_content[chapter_title] = chapter_text.strip()  # Remove extra spaces
@@ -97,7 +99,7 @@ def summarize_with_retry(llm_chain, text, max_retries=5):
     retries = 0
     while retries < max_retries:
         try:
-            summary = llm_chain.run(text)
+            summary = llm_chain.invoke(input=text)
             return summary
         except RateLimitError as e:
             retries += 1
@@ -112,6 +114,11 @@ def summarize_with_retry(llm_chain, text, max_retries=5):
 def summarize_pdf(file_path):
     # Extract TOC and corresponding chapters
     toc_chapters = extract_toc_and_chapter_content(file_path)
+
+    if not toc_chapters:
+        st.error("No Table of content detected. Please ensure the PDF has a clear structure.")
+        st.stop()
+        return
     
     # Load language model for summarization
     llm = ChatOpenAI(
@@ -119,20 +126,36 @@ def summarize_pdf(file_path):
         openai_api_base=os.getenv("OPENROUTER_BASE_URL"),
         model_name="mistralai/pixtral-12b:free",
     )
-    prompt = PromptTemplate(template="Summarize the following text: {text}", input_variables=["text"])
-    llm_chain = LLMChain(llm=llm, prompt=prompt)
+
+    prompt_template = """You are an expert in writing book summaries.
+    Summarize the following text, which is a chapter in a book. 
+    Let your summary be comprehensive so that readers can understand what is being talked about
+    in the chapter.
+
+    Text: {text}"""
+    prompt = PromptTemplate(template=prompt_template, input_variables=["text"])
+
+    llm_chain = prompt | llm | StrOutputParser()
     
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=200)
 
     # Store summaries safely
     summaries = {}
 
-    # Summarize chapters sequentially
-    for chapter_title, chapter_text in toc_chapters.items():
-        with st.spinner(f"Summarizing {chapter_title}..."):
+    # Summarize the first three chapters sequentially
+    for i, (chapter_title, chapter_text) in enumerate(toc_chapters.items()):
+        if i >= 1:  # Stop after summarizing the first 3 chapters
+            break
+        with st.spinner(f"⚙ Summarizing {chapter_title}..."):
             summary = summarize_with_retry(llm_chain, chapter_text)
             if summary:
                 summaries[chapter_title] = summary
+
+    # # Summarize chapters sequentially
+    # for chapter_title, chapter_text in toc_chapters.items():
+    #     with st.spinner(f"Summarizing {chapter_title}..."):
+    #         summary = summarize_with_retry(llm_chain, chapter_text)
+    #         if summary:
+    #             summaries[chapter_title] = summary
 
     # Summarize chapters concurrently
     # with ThreadPoolExecutor() as executor:
@@ -154,17 +177,17 @@ def summarize_pdf(file_path):
 
     return summaries
 
-# File uploader and summarization trigger
-uploaded_file = st.file_uploader("Choose a PDF book file", type="pdf")
-if uploaded_file is not None:
-    file_path = save_uploaded_file(uploaded_file)
-    # Summarize the PDF
-    with st.spinner("Processing the PDF..."):
-        st.header("Chapter Content")
-        summaries = summarize_pdf(file_path)
+# # File uploader and summarization trigger
+# uploaded_file = st.file_uploader("Choose a PDF book file", type="pdf")
+# if uploaded_file is not None:
+#     file_path = save_uploaded_file(uploaded_file)
+#     # Summarize the PDF
+#     with st.spinner("Processing the PDF..."):
+#         # st.header("Chapter Content")
+#         summaries = summarize_pdf(file_path)
 
-        st.header("Chapter Summaries")
-        # Display the summaries in Streamlit
-        for chapter_title, summary in summaries.items():
-            with st.expander(chapter_title):
-                st.write(summary)
+#         st.header("Chapter Summaries")
+#         # Display the summaries in Streamlit
+#         for chapter_title, summary in summaries.items():
+#             with st.expander(chapter_title):
+#                 st.write(summary)

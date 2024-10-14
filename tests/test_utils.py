@@ -1,5 +1,5 @@
 import unittest
-from app.utils import helper_function
+from utils import helper_function
 
 class TestUtils(unittest.TestCase):
 
