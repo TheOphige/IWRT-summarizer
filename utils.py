@@ -143,16 +143,16 @@ def summarize_pdf(file_path):
 
     # Summarize the first three chapters sequentially
     for i, (chapter_title, chapter_text) in enumerate(toc_chapters.items()):
-        if i >= 1:  # Stop after summarizing the first 3 chapters
+        if i >= 3:  # Stop after summarizing the first 3 chapters
             break
         with st.spinner(f"⚙ Summarizing {chapter_title}..."):
             summary = summarize_with_retry(llm_chain, chapter_text)
             if summary:
                 summaries[chapter_title] = summary
-
+    
     # # Summarize chapters sequentially
     # for chapter_title, chapter_text in toc_chapters.items():
-    #     with st.spinner(f"Summarizing {chapter_title}..."):
+    #     with st.spinner(f"⚙ Summarizing {chapter_title}..."):
     #         summary = summarize_with_retry(llm_chain, chapter_text)
     #         if summary:
     #             summaries[chapter_title] = summary

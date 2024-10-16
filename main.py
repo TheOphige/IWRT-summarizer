@@ -4,29 +4,14 @@ from utils import save_uploaded_file, summarize_pdf
 
 st.set_page_config(
     page_title="IWRT-Summarizer",
-    page_icon="🧨",
-    layout="wide",
+    page_icon="👨‍🦯",
 )
 
 
 # Main Page
-st.image("assets/IWTR-LOGO.png", width=300)
-st.title("Welcome to IWTR")
-
-# select summarize mode
-st.sidebar.title("Royal commands👑")
-summarize_mode = st.sidebar.radio("Select Mode", ["Text Summarize", "Reimagine"])
-
-# info
-st.sidebar.write("---")
-st.sidebar.info("Upload a PDF book, and this app will provide a summary of each chapter using LangChain.")
-
-# Handle selection
-if summarize_mode == "Text Summarize":
-    st.header(f"{summarize_mode} selected! Words are better few.")
-elif summarize_mode == "Reimagine":
-    st.header(f"{summarize_mode} selected! One image is more than a thousand words.")
-
+# st.sidebar.image("assets/IWTR-LOGO.png", width=240)
+st.title("IWTR - Book Summarizer👨‍🦯")
+st.write("Upload a PDF book with table of content, and this app will provide a summary of each chapter.")
 
 
 # File uploader and summarization trigger
@@ -36,16 +21,19 @@ if uploaded_file is not None:
     
     with st.spinner("Processing the PDF..."):
         # Summarize the PDF
-        if summarize_mode == "Text Summarize":
-            summaries = summarize_pdf(file_path)
-        elif summarize_mode == "Reimagine":
+        try:
+
             summaries = summarize_pdf(file_path)
 
-        st.header("Chapter Summaries")
-        # Display the summaries in Streamlit
-        for chapter_title, summary in summaries.items():
-            with st.expander(chapter_title):
-                st.write(summary)
+            st.header("Chapter Summaries")
+            # Display the summaries in Streamlit
+            for chapter_title, summary in summaries.items():
+                with st.expander(chapter_title):
+                    st.write(summary)
 
-        st.write("I'm done Summarizing your Highness👑")
+            st.write("I'm done Summarizing your Highness👑")
+            st.info("\n That's just for three chapters, i stopped there because of rate limit. To summarise every chapter, contact my creator :)")
+
+        except:
+            st.error("Something is wrong, Check your network and retry.😫")
 
