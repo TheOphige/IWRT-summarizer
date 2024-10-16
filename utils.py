@@ -7,25 +7,16 @@ from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from openai import RateLimitError
 from dotenv import find_dotenv, load_dotenv
-import cloudinary
-import cloudinary.uploader
-import io
 
 load_dotenv(find_dotenv())
 
 # Retrieve API keys from .env
 # OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 # OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL")
-# CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
-# CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
-# CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 
 # Retrieve API keys from secrets
 OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
 OPENROUTER_BASE_URL = st.secrets["OPENROUTER_BASE_URL"]
-CLOUDINARY_NAME = st.secrets["CLOUDINARY_NAME"]
-CLOUDINARY_API_KEY = st.secrets["CLOUDINARY_API_KEY"]
-CLOUDINARY_API_SECRET = st.secrets["CLOUDINARY_API_SECRET"]
 
 # # Set up Streamlit page configuration
 # st.set_page_config(page_title="PDF Chapter Summarizer", page_icon="📄")
@@ -42,36 +33,6 @@ def save_uploaded_file(uploaded_file):
         f.write(uploaded_file.getvalue())
     return file_path
 
-# Function to save uploaded file to cloudinary
-def upload_pdf_to_cloudinary(uploaded_file):
-    if uploaded_file is not None:
-        try:
-            # Read the uploaded file's content into a byte stream
-            file_data = io.BytesIO(uploaded_file.getvalue())
-            file_data.seek(0)  # Reset the pointer to the start of the file
-            
-            # Initialize Cloudinary
-            cloudinary.config(
-                cloud_name=CLOUDINARY_NAME,
-                api_key=CLOUDINARY_API_KEY,
-                api_secret=CLOUDINARY_API_SECRET
-            )
-
-            # Upload the file to Cloudinary
-            upload_response = cloudinary.uploader.upload(
-                file_data,
-                resource_type='raw',  # 'raw' for non-media files like PDFs
-                public_id=os.path.splitext(uploaded_file.name)[0],  # Use the file name without extension as public_id
-                format="pdf"  # Ensuring it's uploaded as a PDF
-            )
-            
-            # Get the URL of the uploaded file
-            pdf_url = upload_response.get('url')
-            st.success("File uploaded successfully.")
-            return pdf_url
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-            return None
 
 # Function to extract TOC and chapter content
 def extract_toc_and_chapter_content(pdf_stream):
