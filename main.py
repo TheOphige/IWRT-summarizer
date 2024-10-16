@@ -38,6 +38,5 @@ if uploaded_file is not None:
             st.info("\n That's just for three chapters. I stopped there because of rate limit. \nTo summarise every chapter, contact my creator :)")
 
         except Exception as e:
-            st.error(f"An error occurred: {e}")
             st.error("Something is wrong, Check your network and retry.😫")
 
