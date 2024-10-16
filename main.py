@@ -1,5 +1,6 @@
 import streamlit as st
-from utils import save_uploaded_file, summarize_pdf
+import io
+from utils import summarize_pdf
 
 
 st.set_page_config(
@@ -17,13 +18,15 @@ st.write("Upload a PDF book with table of content, and this app will provide a s
 # File uploader and summarization trigger
 uploaded_file = st.file_uploader("Choose a PDF book file", type="pdf")
 if uploaded_file is not None:
-    file_path = save_uploaded_file(uploaded_file)
+    # Create a byte stream from the uploaded file
+    pdf_stream = io.BytesIO(uploaded_file.getvalue())
     
+
     with st.spinner("Processing the PDF..."):
         # Summarize the PDF
         try:
 
-            summaries = summarize_pdf(file_path)
+            summaries = summarize_pdf(pdf_stream)
 
             st.header("Chapter Summaries")
             # Display the summaries in Streamlit
@@ -32,8 +35,9 @@ if uploaded_file is not None:
                     st.write(summary)
 
             st.write("I'm done Summarizing your Highness👑")
-            st.info("\n That's just for three chapters, i stopped there because of rate limit. To summarise every chapter, contact my creator :)")
+            st.info("\n That's just for three chapters. I stopped there because of rate limit. \nTo summarise every chapter, contact my creator :)")
 
-        except:
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
             st.error("Something is wrong, Check your network and retry.😫")
 
