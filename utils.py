@@ -14,18 +14,18 @@ import io
 load_dotenv(find_dotenv())
 
 # Retrieve API keys from .env
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL")
-CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
-CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
-CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
+# OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# OPENROUTER_BASE_URL = os.getenv("OPENROUTER_BASE_URL")
+# CLOUDINARY_NAME = os.getenv("CLOUDINARY_NAME")
+# CLOUDINARY_API_KEY = os.getenv("CLOUDINARY_API_KEY")
+# CLOUDINARY_API_SECRET = os.getenv("CLOUDINARY_API_SECRET")
 
 # Retrieve API keys from secrets
-# OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
-# OPENROUTER_BASE_URL = st.secrets["OPENROUTER_BASE_URL"]
-# CLOUDINARY_NAME = st.secrets["CLOUDINARY_NAME"]
-# CLOUDINARY_API_KEY = st.secrets["CLOUDINARY_API_KEY"]
-# CLOUDINARY_API_SECRET = st.secrets["CLOUDINARY_API_SECRET"]
+OPENROUTER_API_KEY = st.secrets["OPENROUTER_API_KEY"]
+OPENROUTER_BASE_URL = st.secrets["OPENROUTER_BASE_URL"]
+CLOUDINARY_NAME = st.secrets["CLOUDINARY_NAME"]
+CLOUDINARY_API_KEY = st.secrets["CLOUDINARY_API_KEY"]
+CLOUDINARY_API_SECRET = st.secrets["CLOUDINARY_API_SECRET"]
 
 # # Set up Streamlit page configuration
 # st.set_page_config(page_title="PDF Chapter Summarizer", page_icon="📄")
