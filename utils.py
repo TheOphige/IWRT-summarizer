@@ -133,7 +133,7 @@ def summarize_pdf(file_path):
     llm = ChatOpenAI(
         openai_api_key=OPENROUTER_API_KEY,
         openai_api_base=OPENROUTER_BASE_URL,
-        model_name="mistralai/pixtral-12b:free",
+        model_name="microsoft/mai-ds-r1:free",
     )
 
     prompt_template = """You are an expert in writing book summaries.
