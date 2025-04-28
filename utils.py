@@ -1,7 +1,7 @@
 import os
 import time
 import streamlit as st
-import  PyMuPDF  # PyMuPDF
+import fitz  # PyMuPDF
 from langchain_community.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -37,8 +37,8 @@ def save_uploaded_file(uploaded_file):
 # Function to extract TOC and chapter content
 def extract_toc_and_chapter_content(pdf_stream):
     # Open the PDF document
-    # doc =  PyMuPDF.open(pdf_path)
-    doc =  PyMuPDF.open(stream=pdf_stream, filetype="pdf")
+    # doc = fitz.open(pdf_path)
+    doc = fitz.open(stream=pdf_stream, filetype="pdf")
 
     # Extract TOC (Table of Contents)
     toc = doc.get_toc(simple=True)  # Format: [level, title, page_number]
